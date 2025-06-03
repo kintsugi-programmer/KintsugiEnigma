@@ -186,6 +186,7 @@ Amazon → Product → Feedback
 - Atomicity, means either full or not; never Partial Transaction.
 - Concurrency, Parallel Process handing, Locking, Session Management, etc.
 - Security, Rights Control
+  
 | **File System Drawbacks**          | **DBMS Advantages** (Solves These)   |
 | ---------------------------------- | ------------------------------------ |
 | 🔁 Data Redundancy & Inconsistency | Centralized control, less redundancy |
@@ -195,6 +196,7 @@ Amazon → Product → Feedback
 | ❌ Atomicity Issues                 | Transaction management               |
 | 🔄 Concurrent Access Anomalies     | Concurrency control                  |
 | 🛡️ Security Issues                | Access controls and permissions      |
+
 - All stuff can be included in file system but to code that, it would be toooooooo much hassle
 - File system was Primitive Technology 
 

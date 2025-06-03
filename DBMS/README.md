@@ -2,6 +2,7 @@
 - Only Placement Ready
 - Not Acad.
 - Not GATE 
+- Instructor Love Babbar
   
 ```plaintext
 You said:
