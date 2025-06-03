@@ -33,7 +33,7 @@ Focused on clarity, examples, and retention
 
 Do NOT skip concepts mentioned in the transcript/PDF, even if they are lengthy. Break them into smaller sections and explain each with clarity. Use formatting (bold, bullet points, tables, boxed notes) to make them visually clear and good for self-study.
 ```
-
+```
 ascii of this pls depth
 ```
 
