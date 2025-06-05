@@ -35,6 +35,7 @@ Do NOT skip concepts mentioned in the transcript/PDF, even if they are lengthy. 
 ```
 ```
 ascii of this pls depth
+PLS ASCII VERSION OF THIS WITH MORE KNOWLEDGE
 ```
 
 ## Table of Contents

@@ -1,4 +1,5 @@
 # VMs and Deploying a MERN app
+
 # Why deploy on the internet, isn’t [localhost](http://localhost:3000/) enough?
 
 ## Whats wrong in the following message? Is jimmy lying?
@@ -22,6 +23,8 @@ Jimmy:   Thanks bro!
 
 ```
 
+- Purpoes of DevOps is to take code from localhost to the Internet.
+
 # Domains vs IPs
 
 ## localhost
@@ -41,7 +44,7 @@ Jimmy:   Thanks bro!
       ❌ Raman can't access Bali's server using localhost.
 
 ```
-"Localhost" refers to the computer you're currently working on. It's essentially a loopback address that points to the machine itself, allowing it to communicate with itself over a network. In technical terms, the IP address for localhost is usually `127.0.0.1` for IPv4, or `::1` for IPv6.
+"Localhost" refers to the computer you're currently working on. It's essentially a `loopback address` that points to the machine itself, allowing it to communicate with itself over a network. In technical terms, the IP address for localhost is usually `127.0.0.1` for IPv4, or `::1` for IPv6.
 
 ## ping command
 
@@ -50,12 +53,41 @@ Jimmy:   Thanks bro!
 ```solidity
 ping localhost
 ```
+```
+kintsugi@machine:~$ ping localhost
+PING localhost (127.0.0.1) 56(84) bytes of data.
+64 bytes from localhost (127.0.0.1): icmp_seq=1 ttl=64 time=0.016 ms
+64 bytes from localhost (127.0.0.1): icmp_seq=2 ttl=64 time=0.018 ms
+64 bytes from localhost (127.0.0.1): icmp_seq=3 ttl=64 time=0.025 ms
+64 bytes from localhost (127.0.0.1): icmp_seq=4 ttl=64 time=0.016 ms
+^C
+--- localhost ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3078ms
+rtt min/avg/max/mdev = 0.016/0.018/0.025/0.003 ms
+kintsugi@machine:~$ 
+```
 
 - Now try pinging google
 
 ```solidity
 ping google.com
 ```
+```
+kintsugi@machine:~$ ping google.com
+PING google.com (2404:6800:4002:821::200e) 56 data bytes
+64 bytes from del12s04-in-x0e.1e100.net (2404:6800:4002:821::200e): icmp_seq=1 ttl=117 time=396 ms
+64 bytes from del12s04-in-x0e.1e100.net (2404:6800:4002:821::200e): icmp_seq=2 ttl=117 time=174 ms
+64 bytes from del12s04-in-x0e.1e100.net (2404:6800:4002:821::200e): icmp_seq=3 ttl=117 time=139 ms
+64 bytes from del12s04-in-x0e.1e100.net (2404:6800:4002:821::200e): icmp_seq=4 ttl=117 time=247 ms
+^C
+--- google.com ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3003ms
+rtt min/avg/max/mdev = 138.688/238.957/396.336/98.962 ms
+kintsugi@machine:~$ 
+
+```
+- Big companies Own/rent IP Address, VVV Expensive
+- We people can rent from Cloud Services
 
 Notice google points to a different `IP address` .
 
@@ -63,12 +95,29 @@ Notice google points to a different `IP address` .
 
 - An **IP address** is a unique string of numbers that identifies a device on a network, like the internet. Think of it like a **house address**: it's how computers (or any devices on the network) know where to send information.
 - For example, `192.168.1.1` is an IP address.
+- Public IP is unique like `Addhar Card`
+- All world connected through Sea Cables
+- when clicking a website
+  - React Server send html files from america
+  - comes from sea link
+  - comes to my tower to router
+  - to pc. 
 - An **IP address** is essential for routing data on the internet, but it's not the most human-friendly system.
+- IPv4
+  - eg: 0.1.2.111,etc.
+  - Range from 0.0.0.0 to 255.255.255.255
+  - NOT 12231231.1.2.23
+  - Limited Address , 255**4
+- IPv6
+  - new tech after IPv4
+  - eg: 2404:6800:4002:821::200e,etc.
+  - 
 
 ### Domain name
 
 - A **domain name** is the readable, human-friendly address we use to access websites, like `google.com` or `example.org`.
 - Domains are a higher-level abstraction that makes it easier for us to remember websites instead of trying to recall a string of numbers (like an IP address).
+- internet protocol doesn't understand domain names, it understand Public IPs.
 - For instance, when you type `www.google.com` into your browser, your computer looks up that domain name and finds the corresponding IP address, then connects to the website.
 
 ## Domain name vs Phone number
@@ -91,12 +140,16 @@ There are limited number of IP addresses in the world (ipv4 specially). So it’
 
 
 # Local network, routing (mild hosting)
-
+- intranet hosting
+- Private IPs, Not Exposed to Internet
+- Router has its on Address Table
+- only accessible within Intranet
 If you have multiple laptops on the same `wifi router`, you can access one machine from another by using their private IP address. This is a `mild` version of deploying your app on your `local network` (or whats called the intranet)
+- Stun Protocol ??
 ```
-                             🌐 ROUTER
+                             🌐 Intranet
                          +----------------+
-                         |   Home Router  |
+                         |   Home Router  | Router has its on Address Table
                          +--------+-------+
                                   |
        -------------------------------------------------
@@ -113,6 +166,44 @@ If you have multiple laptops on the same `wifi router`, you can access one machi
 ✅ IP must be Raman’s local IP (not 127.0.0.1)
 ❌ `localhost` ≠ shared
 
+```
+
+```
+                      +-------------------+
+                      |    [ Unknown ]    | no
+                      +-------------------+
+                             /   \
+                            /     \
+                           /       \
+      +-------------------+         +-------------------+
+      |   [ Unknown ]     |         |      Router       | NO OUTSIDE INTRANET NETWORK ENTITIY 
+      +-------------------+         +-------------------+ CAN ACCESS THE STUFF HOST WITHIN THAT INTRANET
+                                    |     (Upper Zone)  |                             
+                                    +---------+---------+
+                                              |
+                        +---------------------+------------------+
+                        |                                        |
+                +---------------+                       +---------------+
+                |     Phone     |                       |    Windows    |
+                +---------------+                       +---------------+
+
+                                   (Internet / Mild Hosting)
+                                             ||
+                                             ||
+                                  +----------||----------+
+                                  |       Router         |
+                                  |   (Mild Hosting)     |
+                                  |   IPs:               |
+                                  |   - 192.2.3.1        |
+                                  |   - 192.2.1.3        |
+                                  +----------+-----------+
+                                             |
+        +-------------------+----------------+------------------+
+        |                   |                                   |
++---------------+   +---------------+                   +---------------+
+|     Mac       |   |   Windows     |                   |     Phone     |
++---------------+   +---------------+                   +---------------+
+   192.2.3.1         192.2.3.2                             192.2.1.3
 ```
 
 ## Steps to follow
@@ -133,10 +224,26 @@ app.listen(port, () => {
 });
 ```
 
+```
+npm install express
+node index.js
+# Server is running on http://localhost:3000
+```
+If I go to 192.168.1.3:3000 on my phone, I should be able to visit the website
+```
++------------------------------+
+|  192.168.1.3:3000            |  <- Browser address bar PRIVATE IP
++------------------------------+
+|  Hello, World!               |  <- Page content
+|                              |
++------------------------------+
+```
 1. Find the IP of your machine on the local network
 
 ```solidity
 ifconfig or ipconfig
+# SHow Network interfaces ,ways to connect to your machine
+
 ```
 
 **Loopback address**
@@ -163,8 +270,10 @@ lo0: flags=8049<UP,LOOPBACK,RUNNING,MULTICAST> mtu 16384
 🚫 Not accessible from other machines
 
 ```
-Ethernet 0 network
-```status: inactive
+
+Ethernet 0 network (wifi)
+```bash
+status: inactive
 en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
 	options=6463<RXCSUM,TXCSUM,TSO4,TSO6,CHANNEL_IO,PARTIAL_CSUM,ZEROINVERT_CSUM>
 	ether f4:d4:88:3e:95:e4
@@ -180,7 +289,8 @@ status: active
 en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
     options=...                          # Various network options enabled
     ether f4:d4:88:5e:95:e4              # MAC address (hardware address)
-    inet 192.168.1.3 netmask 0xffffff00  # IPv4 address and netmask
+    inet 192.168.1.3 netmask 0xffffff00  # IPv4 address and netmask (Not Public IP, 
+                                            Cant be reached from internet, but within Router)
     broadcast 192.168.1.255              # Broadcast address for the subnet
     inet6 fe80::1078:fa14:2c87:51cc%en0  # IPv6 link-local address
     inet6 2401:...                       # Public IPv6 address
@@ -188,6 +298,7 @@ en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
     status: active                       # Interface is active and running
 
 ```
+
 | Field             | ASCII/Meaning                                                                |
 | ----------------- | ---------------------------------------------------------------------------- |
 | `en0`             | Interface name (usually Ethernet or Wi-Fi on macOS)                          |
@@ -200,24 +311,39 @@ en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
 | `inet6`           | IPv6 addresses (can be link-local, global, temporary)                        |
 | `status: active`  | The interface is connected and functioning                                   |
 
-If I go to 192.168.1.3:3000 on my phone, I should be able to visit the website
+
+
+
+## Hosts file
+```bash
+nano /etc/hosts
 ```
-+------------------------------+
-|  192.168.1.3:3000            |  <- Browser address bar
-+------------------------------+
-|  Hello, World!               |  <- Page content
-|                              |
-+------------------------------+
+- here IP Address mapped to domain names in your machine
+- helps in dns propogation
 ```
-Hosts file
-You can override what your domain name resolves to by overriding the hosts file.
+GNU nano 8.3                                                                           /etc/hosts                                                                                    
+127.0.0.1 localhost
+127.0.1.1 machine
+
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+
+```
+- you can make your own dns address system IN YOUR MACHINE ONLY
+- You can override what your domain name resolves to by overriding the hosts file.
+
 ```bash
 vi /etc/hosts
-127.0.0.01	harkirat.100xdevs.com
+127.0.0.01	facebook.com
 ```
+
 ```
 +-----------------------------------------------------+
-| ◁  ▷ ⟳🔖  ⚠ Not Secure  harkirat.100xdevs.com:3000 |
+| ◁  ▷ ⟳🔖  ⚠ Not Secure  facebook.com:3000           |
 +-----------------------------------------------------+
 |                                                     |
 |  Hello, World!                                      |
@@ -225,21 +351,107 @@ vi /etc/hosts
 +-----------------------------------------------------+
 
 ```
-Can you think of how you can phis your friend into giving their credentials by using this approach?
+- even ping of facebook.com map to localhost\
+- even postman same
+```
+➜  cohort3 ping facebook.com
+PING facebook.com (127.0.0.1): 56 data bytes
+64 bytes from 127.0.0.1: icmp_seq=0 ttl=64 time=0.070 ms
+64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=0.068 ms
+^C
+--- facebook.com ping statistics ---
+2 packets transmitted, 2 packets received, 0.0% packet loss
+round-trip min/avg/max/stddev = 0.068/0.069/0.070/0.001 ms
+```
+Can you think of how you can phis your friend into giving their credentials by using this approach? 
+- Phishing
+- Make mock fake page same Ui of Orginal website
+- You can have persons credentials then load to original link
 
+## npx serve
+```bash
+npx serve
+```
+- lets your file system on net
+```bash
+kintsugi@machine:~/Documents/Git/KintsugiEnigma/DevOps/Act1$ npx serve
+Need to install the following packages:
+serve@14.2.4
+Ok to proceed? (y) y
+
+
+   ┌─────────────────────────────────────────┐
+   │                                         │
+   │   Serving!                              │
+   │                                         │
+   │   - Local:    http://localhost:3000     │
+   │   - Network:  http://192.168.1.9:3000   │
+   │                                         │
+   │   Copied local address to clipboard!    │
+   │                                         │
+   └─────────────────────────────────────────┘
+
+ HTTP  6/6/2025 2:22:35 AM 192.168.1.5 GET /
+ HTTP  6/6/2025 2:22:35 AM 192.168.1.5 Returned 200 in 34 ms
+ HTTP  6/6/2025 2:22:36 AM 192.168.1.5 GET /favicon.ico
+ HTTP  6/6/2025 2:22:36 AM 192.168.1.5 Returned 404 in 2 ms
+
+```
+```bash
+On Mobile
+
++-----------------------------------------------------------------------------------+
+| 2:22                             Files within Act1/                               |
+|-----------------------------------------------------------------------------------|
+|  ❌  ⏷   📎  192.168.1.9:3000  ⚠️                                       ⬆  🔖  ⋮  |
++-----------------------------------------------------------------------------------+
+|                          Index of Act1/                                           |
+|                                                                                   |
+|  📄 index.js                                                                      |
+|  📁 node_modules/                                                                 |
+|  📄 package-lock.json                                                             |
+|  📄 package.json                                                                  |
+|  📄 passwords.txt                                                                  |
++-----------------------------------------------------------------------------------+
+
+```
+- IT'S DANGEROUS
+- From Port Scan someone can Come form that door and access files and processes.
+- Anyone can steal all these files
 
 # How to deploy apps (actual hosting)?
 
 1. Renting servers on a cloud
+   1. AWS etc
+   2. We can use this
+   3. Even Zepto use this
+   4. Req Cloud
+   5. Renting servers on a cloud GIVES YOU INTERNET AVAILABLE ADDRESS
 2. Rending compute yourself in datacenters
+   1. AWS rent servers from TATA Datacenter
+   2. for big companies
+   3. big agreements
 3. Self hosting (buying a CPU rack in your house)
+   1. High 24/7 Maintainence
+   2. Cheaper
+   3. Vulnerable from External Factors like Heat, Virus, Etc.
+   4. If Rat Cut a wire, you are screwed(Golman earlier times).
 4. Serverless providers
+   1. Req Cloud
 5. Cloud native options (k8s)
+   1. Req Cloud
 
 ### Great video to look at -
-https://www.youtube.com/watch?v=gViEtIJ1DCw
+- https://www.youtube.com/watch?v=gViEtIJ1DCw
+- Leave last half an hr
+- you can
 
 # What is a VM
+- 99% Chance you do this
+- AWS Have several Servers
+- but they don't allot machines to persons (as just buying and allocate machines can have buffer waste)
+- they allot virtual machines
+- virtual partition helps in dynamic size based .computing based efficient usage  
 ```
                              🌍 World Map - Dummy Server Locations 🌍
 
@@ -298,7 +510,7 @@ VMs run on a physical server (called the **host**) but are abstracted through a 
            \         |         /
             \        |        /
           +-----------------------+
-          |      Hypervisor       |
+          |      Hypervisor       | Make sure to allot computing specs form hardware to each vm
           +-----------------------+
                   |
                   v
@@ -307,14 +519,20 @@ VMs run on a physical server (called the **host**) but are abstracted through a 
           +-----------------------+
 
 ```
-Each VM acts like a completely independent machine, even though they share the underlying hardware. You can run different operating systems and applications in different VMs on the same physical server.
+Each VM `acts like a completely independent machine`, even though they `share` the underlying hardware. You can run different operating systems and applications in different VMs on the same physical server.
 
 VMs are highly flexible and easy to scale. You can quickly spin up, modify, or delete VMs, and you can consolidate multiple workloads on a single server.
 
-The virtualization layer introduces a slight overhead in terms of performance because the hypervisor needs to manage resources and ensure each VM operates independently. However, with modern hypervisors and powerful hardware, this overhead is minimal.
-# Bare metal servers
+The virtualization layer introduces a slight `overhead in terms of performance` because the hypervisor needs to manage resources and ensure each VM operates independently. However, with modern hypervisors and powerful hardware, this overhead is minimal.
 
-n a bare-metal setup, an operating system (OS) runs directly on the physical hardware without a hypervisor in between. There’s no virtualization layer.
+Pay as per use(start)
+
+Cloud provider will handle security
+
+# Bare metal servers
+Useage, Hosting at need of fast useage at specific location, Bitcoin mining, etc.
+
+In a bare-metal setup, an operating system (OS) runs directly on the physical hardware without a hypervisor in between. There’s no virtualization layer.
 ```
        +-------------------+
        |       OS          |
@@ -330,17 +548,28 @@ n a bare-metal setup, an operating system (OS) runs directly on the physical har
 
 With bare-metal, you’re typically limited to the resources (CPU, memory, storage) of the actual physical server. You can't dynamically allocate resources like you can in a VM.
 
+Fastest, Easiest, Most Efficient Performance, Yet Most Expensive, Most Rare( already booked from bitcoin miners). provider service eg: latitude.sh
+
+But can't Scaleup, Scaledown
+
+Pay as per month agreement
+
 # SSH protocol, password based auth
 
-The **SSH protocol** (Secure Shell) is a cryptographic network protocol that allows secure communication between two systems, typically for remote administration. It’s most commonly used to log into remote servers and execute commands, but it also facilitates secure file transfers and other operations.
+Renting servers on a cloud GIVES YOU INTERNET AVAILABLE ADDRESS. SSH Helps to talk to Server Machine.
+
+The **SSH protocol** (Secure Shell) is a cryptographic(secure, not allow packet sniffing) network protocol that allows secure communication between two systems, typically for remote administration. It’s most commonly used to log(not GUI, It's CLI) into remote servers and execute commands, but it also facilitates secure file transfers and other operations.
+
 
 ### Key Features of SSH:
 
 1. **Encryption**: SSH encrypts the data that’s sent between the client and the server, so even if someone intercepts the connection, they can’t read the data. This makes it much more secure than older protocols like Telnet or FTP, which transmit data in plaintext.
 2. **Authentication**: SSH can use two methods of authentication:
     - **Password-based**: You enter a password to authenticate yourself to the remote system.
-    - **Public Key-based**: A more secure method, where the client uses a private key to authenticate, and the server checks it against the corresponding public key. This eliminates the need for passwords and provides an extra layer of security.
+    - **Public Key-based**: A `more secure` method, where the client uses a private key to authenticate, and the server checks it against the corresponding public key. This eliminates the need for passwords and provides an extra layer of security.
 3. **Integrity**: SSH ensures the integrity of data, meaning that data cannot be tampered with while it’s in transit. If someone tries to alter the data being sent, the connection will be immediately disrupted.
+   
+1 9 29
 
 ## Password based
 
