@@ -145,7 +145,7 @@ There are limited number of IP addresses in the world (ipv4 specially). So it’
 - Router has its on Address Table
 - only accessible within Intranet
 If you have multiple laptops on the same `wifi router`, you can access one machine from another by using their private IP address. This is a `mild` version of deploying your app on your `local network` (or whats called the intranet)
-- Stun Protocol ??
+- Stun Protocol ?? tunnel ??
 ```
                              🌐 Intranet
                          +----------------+
@@ -422,7 +422,7 @@ On Mobile
 # How to deploy apps (actual hosting)?
 
 1. Renting servers on a cloud
-   1. AWS etc
+   1. AWS GCP Azure Civo DigitalOcean Vultr etc (Civo DigitalOcean cheap)
    2. We can use this
    3. Even Zepto use this
    4. Req Cloud
@@ -568,11 +568,9 @@ The **SSH protocol** (Secure Shell) is a cryptographic(secure, not allow packet 
     - **Password-based**: You enter a password to authenticate yourself to the remote system.
     - **Public Key-based**: A `more secure` method, where the client uses a private key to authenticate, and the server checks it against the corresponding public key. This eliminates the need for passwords and provides an extra layer of security.
 3. **Integrity**: SSH ensures the integrity of data, meaning that data cannot be tampered with while it’s in transit. If someone tries to alter the data being sent, the connection will be immediately disrupted.
-   
-1 9 29
 
-## Password based
 
+## Password based [Easy]
 While setting up a server, select password based authentication
 
 **Example from `digitalocean`**
@@ -625,11 +623,11 @@ Action:
 |   ( ) SSH Key                                     |
 |       Connect to your Droplet with an SSH key     |
 |                                                   |
-|   (*) Password                                     |
+|   (*) Password                                    |
 |       Connect to your Droplet as "root" via pwd   |
 |                                                   |
 |   +-------------------------------------------+   |
-|   |  Create root password: [•••••••••••••••]   |   |
+|   |  Create root password: [•••••••••••••••]  |   |
 |   +-------------------------------------------+   |
 |                                                   |
 |   Password Requirements:                          |
@@ -648,34 +646,325 @@ Action:
 ssh ubuntu@SERVER_IP
 or
 ssh root@SERVER_IP
+or
+ssh USER_NAME@SERVER_IP
 ```
 # SSH protocol, ssh keypair based
+Problem of SSH Password is that we cannot track who logged and when logged with what he did. like giving same room keys to everyone.
 
-Generate a new public private keypair
+SSH KeyPair is like giving Unique Key RFID type to each person.
+- to remove any case of body double, fake user we use Concept of Public-Private Key Pair
+---
+
+## 🔐 What is a Public-Private Key Pair?
+It's a **pair of cryptographic keys** used in **asymmetric encryption**:
+
+| Key Type        | Kept Where | Used For                                 |
+| --------------- | ---------- | ---------------------------------------- |
+| **Private Key** | Secret     | Decryption, signing                      |
+| **Public Key**  | Shared     | Encryption, verifying digital signatures |
+
+They are **mathematically linked** — what one key encrypts, the other can decrypt.
+
+---
+
+## ✅ How It Works: Two Core Use-Cases
+
+### 1. **Encryption / Decryption (Confidentiality)**
+
+* 🔒 **Sender encrypts** the message using the **recipient’s public key**.
+* 🔓 **Recipient decrypts** it using their **private key**.
+
+This ensures **only the intended recipient** (who has the private key) can read the message.
+
+```text
+[Alice wants to send Bob a secret]
+Alice → Encrypt with Bob's public key → Send message
+Bob → Decrypt with his private key → Read message
+```
+
+---
+
+### 2. **Digital Signatures (Authentication & Integrity)**
+
+* ✍️ **Sender signs** the message using their **private key**.
+* ✅ **Receiver verifies** it using the sender’s **public key**.
+
+This proves the message:
+
+* Is **from the claimed sender**
+* **Wasn’t tampered** with
+
+```text
+[Bob sends a signed message to Alice]
+Bob → Sign with his private key → Send message + signature
+Alice → Verify with Bob's public key → Confirm authenticity
+```
+---
+```
+Sender: Osama
+─────────────────────────────────────────────────────────────────────────────
+Original Message:   "I will attack on 20th Aug"
+Osama's Keys:       [ Public Key ]   [ Private Key ]
+
+Step 1: Osama signs the message using his **Private Key**
+         ↓
+Encrypted Output:   "jjjdaskjd...dsajid"  ← This is the **digital signature**
+
+Step 2: Message + Signature sent to Receiver (e.g., Aaj Tak)
+         ↓
+Aaj Tak uses Osama's **Public Key** to verify the signature
+         ↓
+If it decrypts correctly, it confirms:
+  ✅ The message was really from Osama (authentication)
+  ✅ The message was not tampered with (integrity)
+
+Final Verified Message:
+─────────────────────────────────────────────────────────────────────────────
+Receiver: Aaj Tak
+Verified Message:   "I will attack on 20th Aug"
+Verification Tool:  Public Key of Osama
+
+```
+Reverse is also true.
+```
+Sender: Government of India
+─────────────────────────────────────────────────────────────────────────────
+Original Message:   "Surrender or face strike"
+Receiver's Keys:    [ Public Key (Osama) ]   [ Private Key (Osama) ]
+
+Step 1: Government encrypts the message using **Osama’s Public Key**
+         ↓
+Encrypted Message:  "asdh78&@#asdjk123"  ← ciphertext (only Osama can read)
+
+Step 2: Message sent to Osama securely
+         ↓
+Osama decrypts using his **Private Key**
+         ↓
+Decrypted Message:  "Surrender or face strike"
+─────────────────────────────────────────────────────────────────────────────
+
+Receiver: Osama
+Verified Source:   Not guaranteed (no signature here)
+Message Secrecy:   ✅ Only Osama can decrypt
+
+```
+---
+
+## 🧠 Why Is It Secure?
+
+* The private key **cannot be derived** from the public key.
+* Even if someone sees your public key, they **cannot impersonate** you or decrypt your messages.
+* Depends on hard math problems like **factoring large primes** (RSA) or **elliptic curves** (ECC).
+
+---
+
+## 🔁 Summary
+
+| Purpose           | Uses Public Key | Uses Private Key |
+| ----------------- | --------------- | ---------------- |
+| Encryption        | ✅               | 🔓 Decryption    |
+| Digital Signature | Verify          | ✅ Sign           |
+
+---
+## SSH KeyPair Implementation.
+```
+                         ┌───────────────────────┐
+                         │     DigitalOcean (DO) │
+                         │     (Public Key)      │
+                         └────────────▲──────────┘
+                                      │
+                                      │
+                                      │
+         ┌──────────────────────┐     │
+         │        Mac           │─────┘
+         │                      │
+         │  ┌───────────────┐   │
+         │  │ Private Key   │   │  ← kept secret
+         │  └───────────────┘   │
+         │  ┌───────────────┐   │
+         │  │ Public Key    │───┼──────→ GitHub (Public Key)
+         │  └───────────────┘   │
+         └──────────────────────┘
+
+🔐 CONTEXT EXPLAINED
+
+Mac:
+- Holds a keypair:
+    - Private Key → Secret, used to prove identity
+    - Public Key  → Shared with others
+
+DigitalOcean (DO):
+- Stores the Public Key
+- Used to verify SSH access
+
+GitHub:
+- Also stores the same Public Key
+- Verifies identity for Git operations (push, pull)
+
+✅ LOGIN FLOW
+
+Step 1: You try to connect (SSH into DO or Git push/pull)
+Step 2: Your Mac uses its Private Key
+Step 3: DO or GitHub checks:
+        "Does this private key match the stored public key?"
+Step 4: If yes → ✅ Access Granted
+         If no  → ❌ Access Denied
+
+🔒 SUMMARY TABLE
+
++------------------+----------------------------------------+
+| Component        | Role                                   |
++------------------+----------------------------------------+
+| Mac              | Stores private + public key            |
+| DigitalOcean     | Stores only the public key             |
+| GitHub           | Stores only the public key             |
+| Authentication   | Matches Mac's private key with         |
+|                  | server's public key for verification   |
++------------------+----------------------------------------+
+
+
+```
+We can store multiple keypairs in server and audit.
+```
+                        ┌──────────────────────────────┐
+                        │       DigitalOcean (DO)      │
+                        │ ┌──────────────────────────┐ │
+                        │ │ Ramans's Public Key       │ │
+                        │ │ Your Public Key           │ │
+                        │ └──────────────────────────┘ │
+                        └──────────────┬───────────────┘
+                                       │
+                      Logs and tracks │
+                    who connects + when│
+                                       ▼
+         ┌──────────────────────┐          ┌──────────────────────┐
+         │        Mac           │          │     Raman's System    │
+         │                      │          │                       │
+         │  Private Key         │          │  Private Key          │
+         │  Public Key──────────┘          │  Public Key───────────┘
+         └──────────────────────┘          └──────────────────────┘
+                     │                                  │
+                     ▼                                  ▼
+           ┌────────────────┐                  ┌─────────────────┐
+           │     GitHub     │                  │     GitHub      │
+           │ Public Key(s)  │◄─────────────────┘  (Same access)  │
+           └────────────────┘
+
+🔐 Contextual Explanation :
+- Each user (e.g., Mac, Raman) has:
+    - a Private Key (kept secure)
+    - a Public Key (shared with services like DO and GitHub)
+
+- These public keys are stored on:
+    - DigitalOcean (for SSH access)
+    - GitHub (for code access)
+
+- Because the public keys are **individually identifiable**, DO and GitHub can:
+    ✔ Track which user accessed the server
+    ✔ When they logged in
+    ✔ What commands or pushes were executed
+
+- If a user is no longer authorized (e.g., Raman):
+    → Just remove their public key from DO/GitHub
+    → Access is instantly revoked ❌
+
+✅ Benefits of This Setup
+
+- 🔍 Auditing: Track who did what, when
+- 🔒 Secure: No passwords, just key-based login
+- 🔄 Revocable: Remove a public key = kick out access
+- 👥 Multi-user: Multiple people can safely access same server (via different keys)
+```
+You can setup friend's laptop with ssh keypair and have access forever?
+
+Just Put your Public key in his laptop at `~/.ssh/authorized_keys`
+
+If you have this i.e. someone put it in your laptop and connect time to time
+
+- Check `authorized_keys`
+
+```solidity
+cat ~/.ssh/authorized_keys
+```
+
+- Generate a new public private keypair
 
 ```solidity
 ssh-keygen
 ```
+- if your private key is exposed, you are screwed
+  - Almost
+  - Passphase adds extra password 
+  - Passphase makes more secure
 
-Explore your public and private key
+- Explore your public and private key
 
 ```solidity
 cat ~/.ssh/id_rsa.pub
 cat ~/.ssh/id_rsa
 ```
 
-- Try adding it to Github so you can push to github without password
+- harkirats useage
+- .ssh    whothehellwasthat #here he didnt gave his github password, just ssh keys password exposed, it doesnt matter because we dont have keys
+```bash
+$ git push origin HEAD
+fatal: not a git repository (or any of the parent directories): .git
+
+$ ls
+.ssh    whothehellwasthat
+
+$ cd .ssh
+$ ls
+id_ed25519        id_ed25519.pub
+id_rsa            id_rsa.pub
+id_rsa2           id_rsa2.pub
+id_rsa3           id_rsa3.pub
+known_hosts       kr
+
+$ ssh-keygen
+Generating public/private rsa key pair.
+Enter file in which to save the key (/Users/harkiratsingh/.ssh/id_rsa): /Users/harkiratsingh/.ssh/id_rsa3
+Enter passphrase (empty for no passphrase): ********
+Enter same passphrase again: ********
+
+Your identification has been saved in /Users/harkiratsingh/.ssh/id_rsa3
+Your public key has been saved in /Users/harkiratsingh/.ssh/id_rsa3.pub
+The key fingerprint is:
+SHA256:7qsfrkKDshsCEksh9rT7098G3Cy6A4gMlHoCVP2hwIa0 harkiratsingh@harkiratsingh-MacBook-Pro-2.local
+The key's randomart image is:
++---[RSA 3072]----+
+| . . o           |
+|.o = .           |
+|= . o .          |
+|Eoo. .           |
+|=... . S         |
+|o+ . o +.        |
+|+.. . +o.        |
+|.o..** +.        |
+| o+ o*o ..       |
++----[SHA256]-----+
+
+$ ls
+id_ed25519        id_ed25519.pub
+id_rsa            id_rsa.pub
+id_rsa2           id_rsa2.pub
+id_rsa3           id_rsa3.pub
+known_hosts       known_hosts.old
+
 ```
+- Try adding it to Github so you can push to github without password
+```bash
 +-----------------------------------------------------+
 |                  GitHub Settings                    |
 |-----------------------------------------------------|
-| Profile: Kirat (hkirat)                             |
+| Profile: Name (UserName)                            |
 |   [Switch settings context]                         |
 |                                                     |
 | [🔓] Public profile                                 |
-| [⚙️ ] Account                                        |
+| [⚙️ ] Account                                       |
 | [🎨] Appearance                                     |
-| [♿] Accessibility                                  |
+| [♿] Accessibility                                   |
 | [🔔] Notifications                                  |
 |                                                     |
 | Access:                                             |
@@ -686,14 +975,13 @@ cat ~/.ssh/id_rsa
 |   [🔑] SSH and GPG keys [Selected]                  |
 |   [🏢] Organizations                                |
 +-----------------------------------------------------+
-
 > SSH keys
 This is a list of SSH keys associated with your account.
 
 Authentication keys:
 +---------------------------------------------+
-|  🔑 didi mac                                 |
-|  SHA256:VDWz2a2...                          |
+|  🔑 didi mac                                |
+|  SHA256:VDWz2a2...                          | Paste your Public key over here
 |  Added on Mar 27                            |
 |  Last used within the last week             |
 +---------------------------------------------+
@@ -704,8 +992,8 @@ Authentication keys:
 (This section is shown below but not visible in this screenshot)
 
 ```
-- Try adding it to digitalocean and ssh using it.
-```
+- Try adding it to digitalocean and ssh using it. (you are technically inseritng your pc public key inside server's `cat ~/.ssh/authorized_keys`)
+```bash
 +------------------------------------------------------------+
 |              Choose Authentication Method                 |
 +------------------------------------------------------------+
@@ -766,7 +1054,11 @@ Check `authorized_keys`
 ```solidity
 cat ~/.ssh/authorized_keys
 ```
-
+### What You get from VM?
+- Computing 
+- Storage
+- Public IP
+  
 ### How to hack your friends laptop?
 
 Put your public key in your friends laptop as an authorized key.
@@ -808,3 +1100,4 @@ If you get a VM on digitalocean, there is an associated IP address to it. This i
 +-----------------------------------------------------------------------+
 
 ```
+- if you are using http in college server's => Sniffing is poss
