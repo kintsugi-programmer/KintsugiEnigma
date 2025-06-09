@@ -126,14 +126,34 @@ Customer Info in DB includes:
 ### 2️⃣ Instances and Schemas
 
 * The collection of actual information stored in the DB at a particular moment is called an **instance** of DB.
+* Data Snapshot of DB,eg: data @12:35:35 04 07 2025.
+```
+                * Instance of DB example  *
++---------------------------------------------+
+|                   Student                   |
++-----+--------+--------+--------+------------+
+| Sr# |  Name  |   Ph   | Address|   Batch    |
++-----+--------+--------+--------+------------+
+|  1  |  xyz   |   xx   |   xx   |     xx     |
+|  2  |  abc   |   xx   |   xx   |     xx     |
+|  3  |        |        |        |            |
++-----+--------+--------+--------+------------+
+
+Time: 12:00 AM
+State of DB? → 2 rows, 2 data points
+
+Next 12:00 AM → 3 students
+
+```
 * The overall design of the DB is called the **DB schema**.
 * Schema is **structural description** of data. Schema **doesn’t change frequently**. Data **may change frequently**.
 * DB schema corresponds to the **variable declarations (along with type)** in a program.
-
+*  
 #### 📦 Types of Schemas:
 
 * **Physical**, **Logical**, and **several view schemas** called **subschemas**.
 * Logical schema is **most important** in terms of its effect on application programs, as programmers construct apps by using logical schema.
+* DB Schema Term = Logical Schema = overall design of db
 * **Physical data independence**: Physical schema change should **not affect logical schema/application programs**.
 
 ---
@@ -153,7 +173,7 @@ Customer Info in DB includes:
 * **ER model**
 * **Relational model**
 * **Object-oriented model**
-* **Object-relational model**
+* **Object-relational model** = **Relational model** + **Object-oriented model**
 
 ---
 
@@ -178,18 +198,89 @@ Data manipulation involves:
 
 * **Query language**, a part of DML to specify statements requesting the retrieval of information.
 
+```
+* Database Language *
+
+DDL ➝ 
+    CREATE TABLE students (
+        stu_ID   INT,
+        Name     VARCHAR(50),
+        add      VARCHAR(90),
+        ph       INT
+    );
+
+DML ➝ 
+    SELECT * FROM students;
+
+```
 ---
 
 ### 5️⃣ How is Database Accessed from Application Programs?
 
 * Apps (written in **host languages**, e.g., C/C++, Java) interact with DB.
 * Example: Banking system’s module generating payrolls access DB by executing **DML statements** from the host language.
+* 2 Imcompatible stuff cross-communicate form a special interface build for them called Application Programming Interface
 
 #### 🔗 APIs:
 
 * **ODBC** (Open Database Connectivity) – Microsoft “C”
 * **JDBC** (Java Database Connectivity) – Java
+```java
+// Imports (Spring + JDBC + Util)
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 
+import java.util.List;
+
+public class CandidateDAOImpl extends AbstractDAO implements CandidateDAO {
+
+    private static final Logger logger = LoggerFactory.getLogger(CandidateDAOImpl.class);
+
+    // SQL for analytics
+    private static final String SQL_TALENT_PARTNER_ANALYTICS = 
+        "SELECT TALENT_PARTNER, count(*) as total, " +
+        "sum(case when status = 'SELECTED' then 1 else 0 end)";
+
+    public Integer add(CandidateDTO candidateDTO) {
+        try {
+            MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+            namedParameters.addValue("name", candidateDTO.getName());
+            namedParameters.addValue("phone", candidateDTO.getPhone());
+            namedParameters.addValue("emailId", candidateDTO.getEmailId());
+            namedParameters.addValue("driveId", candidateDTO.getDriveId());
+            namedParameters.addValue("resume", candidateDTO.getResumePath());
+            namedParameters.addValue("status", candidateDTO.getStatus());
+            namedParameters.addValue("createdUserId", candidateDTO.getCreatedUserId());
+
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+
+            int affectedRowCount = this.namedParameterJdbcTemplate.update(
+                "INSERT INTO CANDIDATE " +
+                "(NAME, PHONE, EMAIL_ID, RESUME_PATH, DRIVE_ID, STATUS, CREATED_USER_ID) " +
+                "VALUES (:name, :phone, :emailId, :resume, :driveId, :status, :createdUserId)",
+                namedParameters,
+                keyHolder
+            );
+
+            if (affectedRowCount == 1) {
+                return keyHolder.getKey().intValue();
+            }
+
+        } catch (Exception e) {
+            logger.error("Error in adding candidate", e);
+        }
+
+        return null;
+    }
+}
+```
 ---
 
 ### 6️⃣ Database Administrator (DBA)
@@ -217,6 +308,7 @@ Data manipulation involves:
 #### 🖥️ a. T1 Architecture
 
 * The client, server & DB all present on the **same machine**.
+* eg : localhost app
 
 ---
 
@@ -225,6 +317,7 @@ Data manipulation involves:
 * App is partitioned into **2 components**.
 * Client machine invokes DB system functionality at server end through **query language statements**.
 * API standards like **ODBC & JDBC** are used to interact between client and server.
+* eg: flask connect to mongodbURI
 
 ---
 
@@ -234,7 +327,10 @@ Data manipulation involves:
 * Client machine is just a **frontend** and doesn’t contain any direct DB calls.
 * Client machine communicates with **App server**, and App server communicates with **DB system** to access data.
 * **Business logic** (what action to take) resides in App server itself.
+* Backend can handle vulnerability before coming to DB :0
+* Layered Security :0
 * T3 architectures are best for **WWW applications**.
+* eg: MongoDBURI + Backend at digital ocean + frontend at verel
 
 ##### 🌟 Advantages:
 
