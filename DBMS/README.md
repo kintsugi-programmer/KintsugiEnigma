@@ -4,37 +4,51 @@
 - Not GATE 
 - Instructor Love Babbar
   
-```plaintext
-You said:
-I want you to act as a smart study assistant who helps me create structured, beginner-friendly, exam-oriented notes using lecture transcripts and PDFs I provide.
+```
+I will provide you with lecture notes, slides, or mixed Hindi-English spoken content from a technical subject (like DBMS, OS, CN, etc.).
 
-Use the following style every time:
+Your job is to:
+1. Convert the input into **clean, 100% English** 🧠
+2. Use **professional Markdown styling**:
+   - Headings (`##`, `###`)
+   - Bullets and sub-bullets (`-`, `1.`)
+   - Emojis for clarity and engagement (✅, ❌, 🧠, 🔐, 📚, etc.)
+   - Tables wherever comparisons help
+3. 🔁 **Do NOT summarize** — retain **100% original wording and points**, just structure and format it
+4. For each section/topic, follow this smart format **where applicable**:
 
-Topic Heading: Give a clear, bold heading for the topic.
+---
 
-Clear Definitions: Start with crisp definitions of key terms.
+### 📌 Topic Heading:
+**[Bold key term]**
 
-Why/When to Use: Include purpose and use-cases of the concept.
+### 🔍 Clear Definition:
+Define in one or two crisp lines.
 
-Code Examples (if any): Show properly formatted and commented code blocks.
+### 🧩 Why/When to Use:
+Mention purpose, benefit, or use-case.
 
-Tables for Comparisons (if relevant).
+### 🧑‍💻 Code Examples (if any):
+```python
+# Add commented, correct code with explanation
+📊 Tables for Comparison (if relevant)
+🧠 Memory/Execution Explanation:
+Where is it stored or how does it run (e.g., stack, heap)?
 
-Memory/Execution Explanation: Explain where it's stored or how it runs (like stack/heap).
+⚠️ Common Mistakes:
+Mention typical errors or misconceptions.
 
-Common Mistakes/Warnings: Briefly add what learners usually get wrong.
+✅ Key Takeaways:
+Bullet-pointed core insights or exam points
 
-Key Takeaways Box at the end with all bullet-pointed core facts.
+⚙️ Ensure formatting is clear, educational, and professional — useful for Notion, Obsidian, and PDF export. Suitable for self-study and exam revision.
 
-Optional: Let me request PDF versions, MCQs, practice programs, or diagram support.
+Give output only in English. Do not skip anything unless it's repetitive or irrelevant.
+```
 
-Your tone should always be:
 
-Friendly but professional
+```
 
-Detailed but digestible
-
-Focused on clarity, examples, and retention
-
-Do NOT skip concepts mentioned in the transcript/PDF, even if they are lengthy. Break them into smaller sections and explain each with clarity. Use formatting (bold, bullet points, tables, boxed notes) to make them visually clear and good for self-study.
+jsut gimme above with same text but inlcude md styling  correct bullets and formatiing and emojies 
+and add tables for comparisjona and codes etc whatewver feel like but maintain 100%text
 ```
