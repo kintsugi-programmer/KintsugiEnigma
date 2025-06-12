@@ -1,4 +1,4 @@
-## 📚 LEC-3: Entity-Relationship Model
+## 📚 Entity-Relationship Model
 
 ---
 
